@@ -1,0 +1,88 @@
+---
+title: "在 Railway 上部署 Bytebot"
+description: "使用官方一键模板在 Railway 部署完整 Bytebot 栈的指南"
+---
+
+> **快速上手**：点击下方按钮，添加你的 AI API Key（Anthropic、OpenAI 或 Google），约 2 分钟即可启动个人 Bytebot 实例。
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/bytebot?referralCode=L9lKXQ)
+
+---
+
+## 为什么选择 Railway？
+
+Railway 提供开箱即用的 PaaS 体验，具备私有网络与每个服务的独立日志，非常适合 Bytebot 的多容器架构。官方模板会使用推送到 `edge` 分支的最新镜像，将各服务自动联通。
+
+---
+
+## 部署内容
+
+| 服务 | 容器镜像（edge） | 端口 | 公开 | 作用 |
+| --- | --- | --- | --- | --- |
+| **bytebot-ui** | `ghcr.io/bytebot-ai/bytebot-ui:edge` | 9992 | **是** | 面向外部的 Next.js Web UI |
+| **bytebot-agent** | `ghcr.io/bytebot-ai/bytebot-agent:edge` | 9991 | 否 | 任务编排与 LLM 调用 |
+| **bytebot-desktop** | `ghcr.io/bytebot-ai/bytebot-desktop:edge` | 9990 | 否 | 容器化 Ubuntu + XFCE 桌面 |
+| **postgres** | `postgres:14-alpine` | 5432 | 否 | 持久化存储层 |
+
+所有内部流量均通过 Railway 的[私有网络](https://docs.railway.com/guides/private-networking)进行。只有 `bytebot-ui` 会分配公共域名。
+
+---
+
+## 步骤详解
+
+<Steps>
+  <Step title="1. 打开模板">
+    点击上方 **Deploy on Railway** 按钮，或访问对应链接。
+  </Step>
+  <Step title="2. 配置环境">
+    在 bytebot-agent 服务中添加至少一个 AI 提供商的密钥：
+    - **Anthropic**：填入 `ANTHROPIC_API_KEY`
+    - **OpenAI**：填入 `OPENAI_API_KEY`
+    - **Google**：填入 `GEMINI_API_KEY`
+    其他默认项保持不变。
+  </Step>
+  <Step title="3. 启动部署">
+    点击 **Deploy**。Railway 将拉取预构建镜像，创建 Postgres，并在私有网络上连接所有服务。
+  </Step>
+  <Step title="4. 启动 Bytebot">
+    当构建日志显示 *"bytebot-ui: ready"* 时，点击生成的 URL（如 `https://bytebot-ui-prod.up.railway.app`）。你会看到任务界面，创建任务并观看桌面流！
+    _提示：可在 Railway 仪表盘为每个服务实时查看日志。_
+  </Step>
+</Steps>
+
+<Note>
+  首次部署会下载多层容器镜像，预计 ~2 分钟；后续重新部署更快。
+</Note>
+
+---
+
+## 私有网络与安全
+
+• **私有网络**确保 agent、desktop 与数据库在不暴露端口的情况下安全通信。  
+• **公共暴露**仅限于 UI，它提供静态资源并代理 WebSocket 流量。  
+• **添加认证**：可使用 Railway 内置密码保护，或接入 Cloudflare Access、Auth0、OAuth 代理等外部方案。  
+• 也可在 Railway 仪表盘为 UI 配置自定义域名，并启用 Cloudflare 提供 WAF/CDN 保护。
+
+---
+
+## 定制与扩容
+
+1. **更换镜像**：Fork 仓库，推送你自己的镜像，并在模板中修改 Dockerfile 引用。  
+2. **提升资源**：每个服务在 Railway 中都有独立的 CPU/RAM 配置。若自动化任务较重，可提升 desktop 或 agent 的资源配额。  
+
+---
+
+## 故障排查
+
+| 现象 | 可能原因 | 解决办法 |
+| --- | --- | --- |
+| Web UI 显示“connecting…” | 桌面尚未就绪或私有网络配置异常 | 等待 `bytebot-desktop` 启动完成或重启服务 |
+| Agent 报 401/403 | API Key 缺失/无效 | 在 Railway 变量中重新填写 AI 提供商的密钥 |
+| 桌面视频较慢 | Railway 免费套餐的限速 | 升级套餐或降低桌面分辨率 |
+
+---
+
+## 下一步
+
+• 探索[REST API](/api-reference/introduction)以编程方式创建任务。  
+• 加入我们的 [Discord](https://discord.com/invite/d9ewZkWPTP) 社区获取支持并分享你的自动化成果！

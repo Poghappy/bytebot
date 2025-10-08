@@ -1,0 +1,71 @@
+---
+title: "快速开始"
+description: "通过 Railway 或 Docker Compose 快速部署并启动 Bytebot"
+---
+
+# 快速开始
+
+你可以通过两种方式快速体验 Bytebot：Railway 一键部署（云端）或 Docker Compose（本地自托管）。
+
+## 方式一：Railway 一键部署
+
+> 只需点击按钮，添加任一 AI API Key（Anthropic、OpenAI 或 Google），约 2 分钟即可获得个人 Bytebot 实例。
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/bytebot?referralCode=L9lKXQ)
+
+<Steps>
+  <Step title="打开模板">
+    点击上方按钮或访问链接，进入 Railway 模板页面。
+  </Step>
+  <Step title="配置环境变量">
+    在 bytebot-agent 服务中添加至少一个 AI 提供商的密钥：
+    - Anthropic → `ANTHROPIC_API_KEY`
+    - OpenAI → `OPENAI_API_KEY`
+    - Google → `GEMINI_API_KEY`
+  </Step>
+  <Step title="开始部署">
+    点击 **Deploy**，Railway 将拉取镜像、创建 Postgres 并在私有网络连接各服务。
+  </Step>
+  <Step title="访问 Bytebot">
+    当日志显示“bytebot-ui: ready”时，点击生成的 URL，即可看到任务界面，创建任务并观看桌面流！
+  </Step>
+</Steps>
+
+<Note>
+  首次部署会下载多个容器层，约需 2 分钟；后续重新部署更快。
+</Note>
+
+## 方式二：Docker Compose（本地）
+
+<Steps>
+  <Step title="克隆仓库并进入目录">
+    ```bash
+    git clone https://github.com/bytebot-ai/bytebot.git
+    cd bytebot
+    ```
+  </Step>
+  <Step title="设置 API 密钥">
+    在 `docker/.env` 中添加至少一个密钥：
+    ```bash
+    ANTHROPIC_API_KEY=sk-ant-your-key
+    OPENAI_API_KEY=sk-your-key
+    GEMINI_API_KEY=your-key
+    ```
+  </Step>
+  <Step title="启动服务">
+    ```bash
+    docker-compose -f docker/docker-compose.yml up -d
+    ```
+    这会启动 4 个服务：Desktop（9990）、Agent（9991）、UI（9992）、Postgres（5432）。
+  </Step>
+  <Step title="访问 UI">
+    打开浏览器访问 http://localhost:9992 ，创建并监控任务。
+  </Step>
+</Steps>
+
+## 管理与更新
+
+- 查看日志：`docker-compose logs -f`
+- 停止服务：`docker-compose down`
+- 更新镜像：`git pull && docker-compose pull && docker-compose up -d`
+- 重置数据：清理 `volumes`（谨慎操作）

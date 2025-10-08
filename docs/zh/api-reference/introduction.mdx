@@ -1,0 +1,151 @@
+---
+title: "API 参考"
+description: "用于程序化控制的 Bytebot API 端点总览"
+---
+
+# Bytebot API 概览
+
+Bytebot 提供两类主要 API 以进行程序化控制：
+
+## 1. Agent API（任务管理）
+
+Agent API 运行在 9991 端口，提供高层的任务管理能力：
+
+<CardGroup cols={2}>
+  <Card
+    title="任务管理"
+    icon="list-check"
+    href="/api-reference/agent/tasks"
+  >
+    以编程方式创建、管理与监控由 AI 驱动的任务
+  </Card>
+  <Card
+    title="UI 集成"
+    icon="window"
+    href="/api-reference/agent/ui"
+  >
+    为自定义 UI 提供 WebSocket 连接与实时更新
+  </Card>
+</CardGroup>
+
+### Agent API 基础 URL
+```
+http://localhost:9991
+```
+
+### 创建任务示例
+```bash
+curl -X POST http://localhost:9991/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "从 webmail 下载发票并按日期整理",
+    "priority": "HIGH"
+  }'
+```
+
+## 2. Desktop API（直接控制）
+
+Desktop API 运行在 9990 端口，提供低层的桌面直接控制：
+
+<CardGroup cols={2}>
+  <Card
+    title="电脑控制"
+    icon="keyboard"
+    href="/api-reference/computer-use/unified-endpoint"
+  >
+    直接控制鼠标、键盘与屏幕截图
+  </Card>
+  <Card
+    title="使用示例"
+    icon="code"
+    href="/api-reference/computer-use/examples"
+  >
+    常见自动化场景的代码示例
+  </Card>
+</CardGroup>
+
+### Desktop API 基础 URL
+```
+http://localhost:9990
+```
+
+### 桌面控制示例
+```bash
+curl -X POST http://localhost:9990/computer-use \
+  -H "Content-Type: application/json" \
+  -d '{"action": "screenshot"}'
+```
+
+### MCP 支持
+
+Desktop API 同时暴露 MCP（Model Context Protocol）端点：
+```
+http://localhost:9990/mcp
+```
+
+连接你的 MCP 客户端，即可通过 SSE 访问桌面控制工具。
+
+## 认证
+
+- 本地访问：默认无需认证
+- 远程访问：根据安全需求配置认证
+- 生产环境：建议使用 API Key、OAuth 或其他鉴权方式
+
+## 响应格式
+
+### Agent API 响应
+```json
+{
+  "id": "task-123",
+  "status": "RUNNING",
+  "description": "任务描述",
+  "messages": [...],
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
+
+### Desktop API 响应
+```json
+{
+  "success": true,
+  "data": { ... },
+  "error": null
+}
+```
+
+## 错误处理
+
+两类 API 均使用标准 HTTP 状态码：
+
+| 状态码 | 描述 |
+| ------ | ---- |
+| 200    | 成功 |
+| 201    | 已创建 |
+| 400    | 错误请求（参数无效） |
+| 401    | 未授权（认证失败） |
+| 404    | 未找到（资源不存在） |
+| 500    | 服务器内部错误 |
+
+## 速率限制
+
+- Agent API：无硬性限制，但需考虑任务队列容量
+- Desktop API：无速率限制，但过快的动作可能影响桌面性能
+
+## 最佳实践
+
+1. 高层自动化优先使用 Agent API，让 AI 处理复杂性
+2. 精细动作使用 Desktop API，以获得精准控制
+3. 两者结合：通过 Agent API 创建任务、用 Desktop API 监控细节
+4. 优雅处理错误：为瞬时失败实现重试逻辑
+5. 监控资源使用：两类 API 都可能消耗较多资源
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="快速开始" icon="rocket" href="/quickstart">
+    启动你的 API
+  </Card>
+  <Card title="任务示例" icon="code" href="/guides/task-creation">
+    查看 API 的实际用法
+  </Card>
+</CardGroup>

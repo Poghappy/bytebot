@@ -1,0 +1,17 @@
+ByteBot 项目 AI 提示与隔离规则
+
+范围：仅限 /Users/zhiledeng/Pictures/GAMEBOT/bytebot 内的代码与资源。
+
+规则：
+1) 项目自包含：使用 bytebot/packages 下的模块边界，遵循现有构建与运行方式；不要与 activepieces 发生配置或依赖上的耦合。
+2) 依赖安装与脚本执行必须在 bytebot 项目根目录进行。
+3) 文档修改需遵循 docs 目录结构与中英文分区（含 zh）；不要跨项目复制或移动文档。
+4) 安全与密钥管理：遵循项目 README 与部署指南要求，通过 .env 或 Helm values 管理敏感信息，严禁硬编码。
+5) Docker 与部署：使用 bytebot/docker 下的 Dockerfile 与 docker-compose.*.yml；不要引用 activepieces 的容器配置。
+6) Helm 与 K8s：遵循 helm 目录既有 Chart 与 values；不要跨项目复用或混合模板。
+7) UI/代理：若改动 UI 或代理配置，需在本项目内启动本地预览进行验证。
+
+执行准则：
+- 任何 UI 改动需在本项目内预览验证。
+- 所有命令在 bytebot 目录下执行，避免影响其他项目。
+- 输出聚焦于 bytebot 项目，不扩展到其他子项目。

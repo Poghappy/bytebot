@@ -1,0 +1,52 @@
+---
+title: "架构总览"
+description: "Bytebot 的模块化架构与任务执行流程"
+---
+
+# 架构总览
+
+Bytebot 由四个主要组件组成：
+
+1. Bytebot Desktop 容器（Ubuntu 22.04 LTS + XFCE4 + noVNC + bytebotd）
+2. AI Agent 服务（NestJS，LLM 集成，WebSocket/REST，Prisma ORM）
+3. Web 任务界面（Next.js 15，嵌入式 VNC，任务创建与监控）
+4. PostgreSQL 数据库（任务、消息与状态存储）
+
+## 任务执行流程
+
+1. 任务创建：用户在 UI 或通过 Agent API 创建任务（含描述、优先级等）
+2. 计划制定：Agent 选择模型，规划步骤与工具（浏览器/键鼠/文件等）
+3. 桌面操作：通过 Desktop API 控制鼠标键盘、截屏、识别、应用操作
+4. 实时反馈：UI 通过 WebSocket 展示过程与状态；需要帮助时可介入
+5. 结果产出：任务完成后生成文件/报告/状态并持久化到数据库
+
+## 通信与协议
+
+- UI ↔ Agent：WebSocket 实时消息；HTTP 任务与状态接口
+- Agent ↔ Desktop：REST 统一端点 `/computer-use`（鼠标、键盘、屏幕等）
+- Agent ↔ DB：Prisma 访问 Postgres；记录任务、消息、历史
+
+## 安全架构
+
+- 容器隔离：桌面与服务在独立容器运行，彼此最小权限
+- 进程隔离：桌面与守护进程分离，异常可恢复
+- 网络隔离：默认仅在内部网络通信；对外仅暴露 UI
+- API 安全：生产环境建议开启鉴权（API Key/OAuth/反向代理）
+
+## 部署模式
+
+- 单用户/本地：Docker Compose 即可
+- 生产：Helm 部署到 Kubernetes，持久化存储与 Ingress
+- 企业：结合外部秘密管理、私有网络与审计策略
+
+## 扩展点
+
+- Agent 工具：新增/定制桌面工具与操作集
+- 模型接入：通过 LiteLLM 统一代理接入任意模型
+- UI 集成：自定义界面或内嵌到你现有系统
+
+## 性能考量
+
+- 资源配额：按需为 Desktop 与 Agent 设置 CPU/内存
+- 分辨率与刷新率：平衡桌面流畅度与带宽占用
+- 并发任务：结合优先队列与资源管理控制吞吐

@@ -1,0 +1,51 @@
+---
+title: "桌面环境"
+description: "在 Docker 容器中运行的完整 Linux 桌面（Bytebot Core）"
+---
+
+# 桌面环境（Bytebot Core）
+
+Bytebot Core 是运行在 Docker 容器中的完整 Linux 桌面，提供可完全隔离、稳定一致、适合自动化的执行环境。
+
+## 技术栈
+
+- 基础系统：Ubuntu 22.04 LTS、XFCE4、X11、supervisord
+- 预装软件：Firefox ESR、常用生产力工具、Thunderbird、1Password、VSCode、Git、Python 3 等
+- 核心服务：`bytebotd` 守护进程、noVNC Web 客户端、Supervisor
+
+## 桌面特性
+
+- 显示配置：分辨率、缩放与刷新率可调
+- 用户环境：持久化家目录与配置
+- 文件系统：支持挂载与持久化卷，便于数据保存
+
+## 访问方式
+
+- Web 浏览器：通过 UI 嵌入的 VNC 直接观看与交互
+- MCP 控制：连接 MCP 端点，对接模型上下文协议
+- 直接 API：使用 Desktop API 的统一端点进行鼠标键盘与屏幕操作
+
+## 自定义与扩展
+
+- 安装额外软件与依赖
+- 通过 Dockerfile 或 Helm values 注入配置
+
+## 性能优化
+
+- 合理分配 CPU/内存资源
+- 调整分辨率与编码以平衡清晰度与带宽
+
+## 安全加固
+
+- 修改默认密码与访问策略
+- 限制网络访问与对外暴露面
+
+## 故障排查
+
+- 查看容器日志与服务状态
+- 通过 `kubectl`/`docker` 定位问题并重启相关组件
+
+## 最佳实践
+
+- 将敏感操作与数据限定在容器内部
+- 根据任务强度规划资源并建立监控
